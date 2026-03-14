@@ -4,7 +4,6 @@
 
 // Changes to this file will be reverted when you update Steamworks.NET
 
-#pragma warning disable 436
 namespace Steamworks {
 	public struct SteamItemDef_t : System.IEquatable<SteamItemDef_t>, System.IComparable<SteamItemDef_t> {
 		public int m_SteamItemDef;

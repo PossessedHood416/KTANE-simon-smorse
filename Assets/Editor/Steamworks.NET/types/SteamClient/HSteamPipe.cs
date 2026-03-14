@@ -4,7 +4,6 @@
 
 // Changes to this file will be reverted when you update Steamworks.NET
 
-#pragma warning disable 436
 namespace Steamworks {
 	public struct HSteamPipe : System.IEquatable<HSteamPipe>, System.IComparable<HSteamPipe> {
 		public int m_HSteamPipe;

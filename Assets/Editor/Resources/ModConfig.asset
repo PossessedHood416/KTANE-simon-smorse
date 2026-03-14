@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
+  m_Name: ModConfig
+  m_EditorClassIdentifier: 
+  id: SimonsMorse
+  title: Simon s'Morse
+  author: PossessedHood416
+  description: "\u201CJust think about it Simon. In just a few hours, you and I will
+    be sitting around a campfire making delicious hot schmoes.\u201D\r\n\u201CThey\u2019re
+    called s\u2019mores, Tasha.\u201D\r\n\nColab with RazorBlade_Wolfe!\n\nHelp Simon
+    toast the perfect marshmellow by inputting morse into some logs.\n\nThe manual
+    can be found in the manuals folder of the game or at ktane.timwi.de.\n\r\nContact
+    PossessedHood416 or RazorBlade_Wolfe on Discord if there are any bugs."
+  version: v1.0
+  outputFolder: build
+  previewImage: {fileID: 2800000, guid: 6ec97b15af930db48a613a8a44f61475, type: 3}

@@ -84,7 +84,7 @@ public class TimerModule : MonoBehaviour
 			}
 
 			TimeRemaining -= Time.deltaTime * multiplier;
-			EmergencyLighsRunning = TimeRemaining <= 60.0f && TimeRemaining >= 0.0f && !ZenMode;
+			EmergencyLighsRunning = TimeRemaining <= 60.0f && TimeRemaining >= 0.0f;
 
 			if (TimeRemaining < 0)
 			{

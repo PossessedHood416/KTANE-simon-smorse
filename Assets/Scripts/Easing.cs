@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 // ReSharper disable UnusedMember.Global
 
 public static class Easing
@@ -139,19 +139,5 @@ public static class Easing
         if (time < 1) return (start - end) / 2 * (Mathf.Sqrt(1 - time * time) - 1) + start;
         time -= 2;
         return (end - start) / 2 * (Mathf.Sqrt(1 - time * time) + 1) + start;
-    }
-
-    public static float BackIn(float time, float start, float end, float duration, float overshoot = 1)
-    {
-        var t = time / duration;
-        var val = t * t * (overshoot * (t - 1) + t);
-        return (end - start) * val + start;
-    }
-
-    public static float BackOut(float time, float start, float end, float duration, float overshoot = 1)
-    {
-        var t = time / duration - 1f;
-        var val = t * t * ((t + 1) * overshoot + t) + 1;
-        return (end - start) * val + start;
     }
 }

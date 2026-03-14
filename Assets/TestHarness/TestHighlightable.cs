@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
 public class TestHighlightable : MonoBehaviour
 {
+
     public Vector3 HighlightScale = Vector3.zero;
     public GameObject HighlightPrefab;
 
@@ -25,7 +26,7 @@ public class TestHighlightable : MonoBehaviour
     {
         if (highlight == null && GetComponent<MeshFilter>() != null)
         {
-            highlight = Instantiate(HighlightPrefab);
+            highlight = Instantiate(HighlightPrefab) as GameObject;
             highlight.transform.parent = transform;
 
             if (HighlightScale == Vector3.zero)
@@ -48,12 +49,7 @@ public class TestHighlightable : MonoBehaviour
             highlight.transform.localRotation = Quaternion.identity;
 
             MeshFilter meshFilter = highlight.AddComponent<MeshFilter>();
-            if (GetComponent<MeshFilter>() == null || GetComponent<MeshFilter>().sharedMesh == null)
-            {
-                Debug.LogErrorFormat(@"The following object’s highlightable does not have a mesh. Make sure it has a MeshFilter component with an assigned mesh: {0}", TestHarness.GetObjectPath(transform));
-                return;
-            }
-            meshFilter.mesh = Instantiate(GetComponent<MeshFilter>().sharedMesh);
+            meshFilter.mesh = Instantiate(GetComponent<MeshFilter>().sharedMesh) as Mesh;
 
             int materialCount = 1;
             if (GetComponent<Renderer>() != null)

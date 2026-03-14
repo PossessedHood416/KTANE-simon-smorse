@@ -1,7 +1,6 @@
 // Uncomment this out to disable copying
 //#define DISABLEREDISTCOPY
 
-#pragma warning disable 436
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;

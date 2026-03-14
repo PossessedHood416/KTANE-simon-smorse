@@ -4,7 +4,6 @@
 
 // Changes to this file will be reverted when you update Steamworks.NET
 
-#pragma warning disable 436
 namespace Steamworks {
 	public struct AccountID_t : System.IEquatable<AccountID_t>, System.IComparable<AccountID_t> {
 		public uint m_AccountID;

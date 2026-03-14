@@ -4,7 +4,6 @@
 
 // Changes to this file will be reverted when you update Steamworks.NET
 
-#pragma warning disable 436
 #define VERSION_SAFE_STEAM_API_INTERFACES
 
 using System.Runtime.InteropServices;

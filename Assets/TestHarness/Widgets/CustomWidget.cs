@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CustomWidget : TestHarnessWidget
+public class CustomWidget : Widget
 {
 
 	[ReadOnlyWhenPlaying] public string key;
