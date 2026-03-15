@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+	lights less bright
+	dupe mats instead of recolouring
+		fmzn does this?
+	calc angle
+	fire [red, white, green]
+	input
+		kill lights
+		parse input
+	colorblind
+	twitch plays
+	stages++
+	sounds
+	solve ani
+		kill lights on solve
+*/
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
