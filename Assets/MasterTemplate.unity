@@ -410,6 +410,82 @@ Prefab:
       propertyPath: AudioClips.Array.data[11]
       value: 
       objectReference: {fileID: 8300000, guid: 40c8207606c86124bac23cdcbc0188ae, type: 3}
+    - target: {fileID: 23250615886371998, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: aac3beeec8d44784a909a31a2aa20c50, type: 2}
+    - target: {fileID: 23020097642273804, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: aac3beeec8d44784a909a31a2aa20c50, type: 2}
+    - target: {fileID: 1692417196144518, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 102703252448979334, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 1545e69027c73ac4eaf23d174b1ffbdb,
+        type: 3}
+    - target: {fileID: 1204630067151836, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1232823179714264, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 102613506082432776, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 1545e69027c73ac4eaf23d174b1ffbdb,
+        type: 3}
+    - target: {fileID: 23746240955649624, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: aac3beeec8d44784a909a31a2aa20c50, type: 2}
+    - target: {fileID: 102729671144125396, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 1545e69027c73ac4eaf23d174b1ffbdb,
+        type: 3}
+    - target: {fileID: 23477648063074460, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: aac3beeec8d44784a909a31a2aa20c50, type: 2}
+    - target: {fileID: 23241206709445364, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: aac3beeec8d44784a909a31a2aa20c50, type: 2}
+    - target: {fileID: 102476131169566396, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 1545e69027c73ac4eaf23d174b1ffbdb,
+        type: 3}
+    - target: {fileID: 102016575120735070, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 1545e69027c73ac4eaf23d174b1ffbdb,
+        type: 3}
+    - target: {fileID: 1958552390809404, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 102476131169566396, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: m_Color.rgba
+      value: 4294967295
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
   m_IsPrefabParent: 0
