@@ -1,7 +1,5 @@
 ﻿/*
 	lights less bright
-	dupe mats instead of recolouring
-		fmzn does this?
 	calc angle
 	fire [red, white, green]
 	input
@@ -38,7 +36,6 @@ public class SimonsMorse : MonoBehaviour {
 	public KMSelectable CampfireKMS;
 	public GameObject[] LightOBJ;
 	public Light[] Lights;
-	public Material[] LogMats;
 
 	private Dictionary<char, string> MorseDict = new Dictionary<char, string>() {
 		{'0', "-----"},
@@ -170,7 +167,7 @@ public class SimonsMorse : MonoBehaviour {
 		CurrentSeat = TxLog;
 
 		for(int i = 0; i < 6; i++){
-			LogMats[i].color = BaseLogColor;
+			LogKMS[i].GetComponent<MeshRenderer>().material.color = BaseLogColor;
 			Lights[i].color = BaseLogColor;
 		}
 
@@ -182,6 +179,12 @@ public class SimonsMorse : MonoBehaviour {
 		Debug.LogFormat("[Simon s'Morse #{0}] Flashing log: {1}", ModuleId, TxLog);
 		Debug.LogFormat("[Simon s'Morse #{0}] Flashing log color: {1}", ModuleId, LogColors[TxLog]);
 		Debug.LogFormat("[Simon s'Morse #{0}] Next Log: {1}", ModuleId, NextSeat);
+
+		Debug.LogFormat("[Simon s'Morse #{0}] Campfire's location: {1}", ModuleId, CampfireAngle);
+		Debug.LogFormat("[Simon s'Morse #{0}] Transmitted character: {1}", ModuleId, TxChar);
+		Debug.LogFormat("[Simon s'Morse #{0}] Current angle: {1}", ModuleId, CurrentAngle);
+		Debug.LogFormat("[Simon s'Morse #{0}] Next angle: {1}", ModuleId, NextAngle);
+
 		
 
 	}
@@ -209,18 +212,23 @@ public class SimonsMorse : MonoBehaviour {
 			new int[] {k+3, 5,   k+5, 4,   3,   k+4, k,   k+4, 5,   2   }, //BR
 			new int[] {3,   k+2, k+4, 5,   k+4, 0,   k+2, 1,   k+1, 0   }, //BL
 			new int[] {k+1, 2,   3,   1,   4,   2,   k+5, 5,   k+3, 4   }, //ML
-			new int[] {5,   k+5, k+2, k+3, 3,   k+1, 1,   0,   2,   k   } //TL
+			new int[] {5,   k+5, k+2, k+3, 3,   k+1, 1,   0,   2,   k   }  //TL
 		};
 
 		NextSeat = table[TxLog][ColorDict.Keys.ToList().IndexOf(LogColors[TxLog])] % 6;
 
+		Vector2Int offset = GetPosOfChar(TxChar) - GetPosOfChar(CampfireAngle) + new Vector2Int(6,6);
+		Vector2Int newAnglePos = offset + GetPosOfChar(CurrentAngle);
+
+		NextAngle = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[(newAnglePos.x % 6) + (newAnglePos.y % 6) * 6];
+
 	}
 
-	Vector2 GetPosOfChar (char x) {
+	Vector2Int GetPosOfChar (char x) {
 		string b36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		int i = b36.IndexOf(x);
 
-		return new Vector2(i%6, i/6);
+		return new Vector2Int(i%6, i/6);
 	}
 
 	IEnumerator TxMorseOnLog(int log, char msg) {
@@ -251,7 +259,7 @@ public class SimonsMorse : MonoBehaviour {
 				Lights[i].color = ColorDict[LogColors[i]];
 
 			while (t < 0.99f) {
-				LogMats[i].color = Color32.Lerp(BaseLogColor, ColorDict[LogColors[i]], (float)t);
+				LogKMS[i].GetComponent<MeshRenderer>().material.color =  Color32.Lerp(BaseLogColor, ColorDict[LogColors[i]], (float)t); 
 				t = Math.Pow(t, 0.76f);
 				yield return new WaitForSeconds(0.03f);
 			}
