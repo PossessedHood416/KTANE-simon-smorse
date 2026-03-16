@@ -104,6 +104,11 @@ public class SimonsMorse : MonoBehaviour {
 	private char CurrentAngle;
 	private char NextAngle;
 
+	private bool isHeld = false;
+	private float HeldTimer = 0f;
+	private string InputMorse = "";
+	private int InputLog;
+
 	void Awake () { //Avoid doing calculations in here regarding edgework. Just use this for setting up buttons for simplicity.
 		ModuleId = ModuleIdCounter++;
 		GetComponent<KMBombModule>().OnActivate += Activate;
@@ -122,23 +127,23 @@ public class SimonsMorse : MonoBehaviour {
 		//Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, btn.transform);
 
 		if(ModuleSolved) return;
+		StopTx();
 
 		int i = 0; //N cw
-		for(; i < 6; i++){
-			if(btn == LogKMS[i]) break;
-		}
-		
+		for(; i < 6; i++) if(btn == LogKMS[i]) break;
+
+		HeldTimer = 0f;
+		isHeld = true;
+		InputLog = i;
 	}
 
 	void InputRelease(KMSelectable btn) {
 		if(ModuleSolved) return;
 
-		/*
-		int i = 0;
-		for(; i < 3; i++){
-			if(btn == InputKMS[i]) break;
-		}
-		*/
+		InputMorse += (HeldTimer > 0.3f) ? '-' : '.';
+		
+		HeldTimer = 0f;
+		isHeld = false;
 	}
 
 	void FireDown() {
@@ -194,7 +199,24 @@ public class SimonsMorse : MonoBehaviour {
 
 	}
 
+	void Update() {
+		if(isHeld){
+			HeldTimer += Time.deltaTime;
+			return;
+		}
 
+		if(InputMorse == "") return;
+
+		if(HeldTimer < -1f){
+			TxCoroutine = StartCoroutine(TxMorseOnLog(InputLog, InputMorse));
+			
+			Debug.LogFormat("[Simon s'Morse #{0}] Input: {1} on log {2}", ModuleId, MorseToChar(InputMorse), InputLog);
+			InputMorse = "";
+			HeldTimer = 0f;
+		} else
+			HeldTimer -= Time.deltaTime;
+
+	}
 	void Solve () {
 		ModuleSolved = true;
 		GetComponent<KMBombModule>().HandlePass();
@@ -224,6 +246,11 @@ public class SimonsMorse : MonoBehaviour {
 
 	}
 
+	char MorseToChar(string morse){
+		if(!MorseDict.ContainsValue(InputMorse)) return '?';
+		return MorseDict.Where(p => p.Value == morse).Select(p => p.Key).ToArray()[0];
+	}
+
 	Vector2Int GetPosOfChar (char x) {
 		string b36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		int i = b36.IndexOf(x);
@@ -231,20 +258,24 @@ public class SimonsMorse : MonoBehaviour {
 		return new Vector2Int(i%6, i/6);
 	}
 
-	IEnumerator TxMorseOnLog(int log, char msg) {
+	IEnumerator TxMorseOnLog(int log, string currentChar) {
 		foreach(GameObject logbulb in LightOBJ) logbulb.SetActive(false);
-		string currentChar = MorseDict[msg];
 		int i = 0;
 
 		while(true){
 			LightOBJ[log].SetActive(false);
-			yield return new WaitForSeconds(i == currentChar.Length ? 0.6f : 0.15f);
+			yield return new WaitForSeconds(i == currentChar.Length ? 1.0f : 0.15f);
 		
 			i %= currentChar.Length;
 
 			LightOBJ[log].SetActive(true);
 			yield return new WaitForSeconds(currentChar[i++] == '.' ? 0.15f : 0.6f);
 		}
+	}
+
+	void StopTx(){
+		if(TxCoroutine != null) StopCoroutine(TxCoroutine);
+		foreach(GameObject logbulb in LightOBJ) logbulb.SetActive(false);
 	}
 	
 	IEnumerator ColorLogs() {
@@ -268,7 +299,7 @@ public class SimonsMorse : MonoBehaviour {
 		}
 
 		yield return new WaitForSeconds(0.5f);
-		TxCoroutine = StartCoroutine(TxMorseOnLog(TxLog, TxChar));
+		TxCoroutine = StartCoroutine(TxMorseOnLog(TxLog, MorseDict[TxChar]));
 	}
 
 	#pragma warning disable 414
