@@ -1,10 +1,15 @@
 ﻿/*
-	colorblind
+	mod settings
+		dont play bg
+		colorblind
 	twitch plays
 	sounds
-		campfire reset
-	solve ani
-		kill lights on solve
+		reset volume down
+		radio sinewave for flash
+	tweak manual
+		prettify table 1
+		morse reading chart
+	ask hawker for lfa
 */
 
 using System;
@@ -21,6 +26,7 @@ public class SimonsMorse : MonoBehaviour {
 
 	public KMBombInfo Bomb;
 	public KMAudio Audio;
+	public KMSelectable SmorseMod;
 
 	static int ModuleIdCounter = 1;
 	int ModuleId;
@@ -81,10 +87,19 @@ public class SimonsMorse : MonoBehaviour {
 		{"Magenta", new Color32(255, 000, 255, 255)},
 		{"Orange",  new Color32(255, 127, 000, 255)},
 		{"Pink",    new Color32(255, 127, 255, 255)},
-		{"Black",   new Color32(000, 000, 000, 255)},
+		{"Black",   new Color32(050, 050, 050, 255)},
 		{"White",   new Color32(255, 255, 255, 255)},
 	};
 	private Color32 BaseLogColor = new Color32(51, 28, 8, 255);
+
+	private Dictionary<int, string> LogPosDict =  new Dictionary<int, string>() {
+		{0, "TR"},
+		{1, "MR"},
+		{2, "BR"},
+		{3, "BL"},
+		{4, "ML"},
+		{5, "TL"},
+	};
 
 	private Color32[] CampfireColors = new Color32[] {
 		new Color32(255, 142, 000, 255),
@@ -108,10 +123,15 @@ public class SimonsMorse : MonoBehaviour {
 	private char CurrentAngle;
 	private char NextAngle;
 
-	private bool isHeld = false;
-	private float HeldTimer = 0f;
+	private bool isLogHeld = false;
+	private float LogHeldTimer = 0f;
 	private string InputMorse = "";
 	private int InputLog = -1;
+
+	private bool isFireHeld = false;
+	private float FireHeldTimer = 0f;
+
+	private KMAudio.KMAudioRef BgNoise = null;
 
 
 	//mod setup
@@ -126,6 +146,9 @@ public class SimonsMorse : MonoBehaviour {
 
 		CampfireKMS.OnInteract += delegate () { FireDown(); return false; };
 		CampfireKMS.OnInteractEnded += delegate () { FireUp(); };
+
+		SmorseMod.OnFocus += delegate { PlayBgNoise(); };
+		SmorseMod.OnDefocus += delegate { StopBgNoise(); };
 	}
 
 	void Start () { //Shit that you calculate, usually a majority if not all of the module
@@ -176,64 +199,76 @@ public class SimonsMorse : MonoBehaviour {
 		StopTx();
 		ModState = "WRITE";
 
-		HeldTimer = 0f;
-		isHeld = true;
+		LogHeldTimer = 0f;
+		isLogHeld = true;
 		InputLog = i;
 	}
 
 	void InputRelease(KMSelectable btn) {
-		if(ModuleSolved || (ModState != "READ" && ModState != "WRITE") || !isHeld) return;
+		if(ModuleSolved || (ModState != "READ" && ModState != "WRITE") || !isLogHeld) return;
 
-		InputMorse += (HeldTimer > 0.3f) ? '-' : '.';
+		InputMorse += (LogHeldTimer > 0.3f) ? '-' : '.';
 		
-		HeldTimer = 0f;
-		isHeld = false;
+		LogHeldTimer = 0f;
+		isLogHeld = false;
 	}
 
 	void FireDown() {
 		if(ModuleSolved || ModState != "READWRITE") return;
-
+		isFireHeld = true;
 	}
 
 	void FireUp() {
+		isFireHeld = false;
 		if(ModuleSolved || ModState != "READWRITE") return;
-		
-		Debug.LogFormat("[Simon s'Morse #{0}] Input: ({3}) {1} on log {2}", ModuleId, MorseToChar(InputMorse), InputLog, InputMorse);
 
+		Debug.LogFormat("[Simon s'Morse #{0}] Input: ({3}) {1} on log {2}", ModuleId, MorseToChar(InputMorse), LogPosDict[InputLog], InputMorse);
 		if(NextSeat == InputLog && NextAngle == MorseToChar(InputMorse))
 			StageProgress();
 		else
 			Strike();
+		
+
 	}
 
 	void Update() {
-		if(ModuleSolved || ModState == "ANI" || ModState == "READWRITE") return;
+		if(ModuleSolved || ModState == "ANI") return;
 
-		if(isHeld){
-			HeldTimer += Time.deltaTime;
+		if(ModState == "READWRITE"){
+			if(isFireHeld) FireHeldTimer += Time.deltaTime;
+			if(FireHeldTimer > 2f) SoftReset();
+			return;
+		}
+
+		if(isLogHeld){
+			LogHeldTimer += Time.deltaTime;
 			return;
 		}
 
 		if(InputMorse == "") return;
 
-		if(HeldTimer < -1f){
+		if(LogHeldTimer < -1f){
 			TxCoroutine = StartCoroutine(TxMorseOnLog(InputLog, InputMorse));
-			HeldTimer = 0f;
+			LogHeldTimer = 0f;
 			ModState = "READWRITE";
 			StartCampfireRecolour(1);
 		} else
-			HeldTimer -= Time.deltaTime;
+			LogHeldTimer -= Time.deltaTime;
 	}
 
 	void Solve () {
+		Debug.LogFormat("[Simon s'Morse #{0}] Module solved.", ModuleId);
 		ModuleSolved = true;
-		Debug.LogFormat("solb");
+		ModState = "SOLVED";
+
 		StopTx();
 		StartCampfireRecolour(2);
+		StartCoroutine(UncolorLogs());
 		GetComponent<KMBombModule>().HandlePass();
 	}
 
 	void Strike () {
+		Debug.LogFormat("[Simon s'Morse #{0}] Strike!", ModuleId);
 		GetComponent<KMBombModule>().HandleStrike();
 		SoftReset();
 	}
@@ -254,11 +289,18 @@ public class SimonsMorse : MonoBehaviour {
 	}
 
 	void SoftReset() {
+		Audio.PlaySoundAtTransform("Reset", CampfireKMS.transform);
 		InputMorse = "";
 		InputLog = -1;
+
+		FireHeldTimer = 0f;
+		LogHeldTimer = 0f;
+		
 		StartCampfireRecolour(0);
+		
 		StopTx();
 		TxCoroutine = StartCoroutine(TxMorseOnLog());
+		
 		ModState = "READ";
 	}
 
@@ -289,15 +331,15 @@ public class SimonsMorse : MonoBehaviour {
 
 		Debug.LogFormat("[Simon s'Morse #{0}] ===========STAGE {1}===========", ModuleId, Stage);
 
-		Debug.LogFormat("[Simon s'Morse #{0}] Flashing log: {1}", ModuleId, TxLogs[Stage-1]);
+		Debug.LogFormat("[Simon s'Morse #{0}] Flashing log: {1}", ModuleId, LogPosDict[TxLogs[Stage-1]]);
 		Debug.LogFormat("[Simon s'Morse #{0}] Flashing log color: {1}", ModuleId, LogColors[TxLogs[Stage-1]]);
 		Debug.LogFormat("[Simon s'Morse #{0}] Flashing morse character: {1}", ModuleId, TxChars[Stage-1]);
 
 
-		Debug.LogFormat("[Simon s'Morse #{0}] Current seat: {1}", ModuleId, CurrentSeat);
+		Debug.LogFormat("[Simon s'Morse #{0}] Current seat: {1}", ModuleId, LogPosDict[CurrentSeat]);
 		Debug.LogFormat("[Simon s'Morse #{0}] Current angle: {1}", ModuleId, CurrentAngle);
 		
-		Debug.LogFormat("[Simon s'Morse #{0}] Next log: {1}", ModuleId, NextSeat);
+		Debug.LogFormat("[Simon s'Morse #{0}] Next log: {1}", ModuleId, LogPosDict[NextSeat]);
 		Debug.LogFormat("[Simon s'Morse #{0}] Next angle: {1}", ModuleId, NextAngle);
 	}
 
@@ -396,6 +438,25 @@ public class SimonsMorse : MonoBehaviour {
 		ModState = "READ";
 	}
 
+	IEnumerator UncolorLogs() {
+		double t = 0.01f;
+		yield return new WaitForSeconds(1f);
+
+		for(int i = 5; i >= 0; i--){
+			Color32 fro = LogKMS[i].GetComponent<MeshRenderer>().material.color;
+
+			while (t < 0.99f) {
+				LogKMS[i].GetComponent<MeshRenderer>().material.color =  Color32.Lerp(fro, BaseLogColor, (float)t); 
+				t = Math.Pow(t, 0.76f);
+				yield return new WaitForSeconds(0.03f);
+			}
+
+			t = 0.01f;
+		}
+
+		yield return new WaitForSeconds(0.5f);
+	}
+
 	IEnumerator CampfireFlickerAni() {
 		float theta = CampfireLight.spotAngle;
 		yield return null;
@@ -428,6 +489,15 @@ public class SimonsMorse : MonoBehaviour {
 		}
 	}
 
+
+	//sounds
+	void PlayBgNoise() {
+		BgNoise = Audio.PlaySoundAtTransformWithRef("Background", CampfireKMS.transform);
+	}
+
+	void StopBgNoise() {
+		BgNoise.StopSound();
+	}
 
 	#pragma warning disable 414
 	private readonly string TwitchHelpMessage = @"!{0} <TL/MR/BL> .-. to transmit the morse using the log at that position. !{0} campfire <tap/hold> to interact with the campfire.";

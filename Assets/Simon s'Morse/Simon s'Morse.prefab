@@ -480,6 +480,7 @@ GameObject:
   - component: {fileID: 4026074091005844}
   - component: {fileID: 198700931488930280}
   - component: {fileID: 199416560991424470}
+  - component: {fileID: 114980605298239554}
   m_Layer: 0
   m_Name: Particle System
   m_TagString: Untagged
@@ -2668,8 +2669,8 @@ Light:
   serializedVersion: 8
   m_Type: 0
   m_Color: {r: 1, g: 0.5586207, b: 0, a: 1}
-  m_Intensity: 2
-  m_Range: 10
+  m_Intensity: 40
+  m_Range: 0.12
   m_SpotAngle: 41.2
   m_CookieSize: 10
   m_Shadows:
@@ -3131,6 +3132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Bomb: {fileID: 114801317378575630}
   Audio: {fileID: 114657697089715690}
+  SmorseMod: {fileID: 114182626994319892}
   LogKMS:
   - {fileID: 114829900567470126}
   - {fileID: 114356381345787702}
@@ -3547,6 +3549,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShaderNames:
   - Standard
+--- !u!114 &114980605298239554
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1457548622664090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Particles/Alpha Blended Premultiply
 --- !u!114 &114994391926846216
 MonoBehaviour:
   m_ObjectHideFlags: 1
