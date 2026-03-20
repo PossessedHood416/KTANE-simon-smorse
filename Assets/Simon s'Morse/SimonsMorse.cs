@@ -1,8 +1,4 @@
 ﻿/*
-	mod settings
-		dont play bg
-		colorblind
-	twitch plays
 	sounds
 		reset volume down
 		radio sinewave for flash
@@ -36,8 +32,12 @@ public class SimonsMorse : MonoBehaviour {
 	public KMSelectable CampfireKMS;
 	public GameObject[] LightOBJ;
 	public Light[] Lights;
+	public TextMesh[] ColorblindTxt;
 	public Light CampfireLight;
 	public ParticleSystem CampfireParticle;
+
+	public KMColorblindMode colorblindScript;
+	private SimonsMorseSettings Settings = new SimonsMorseSettings();
 
 	private Dictionary<char, string> MorseDict = new Dictionary<char, string>() {
 		{'0', "-----"},
@@ -78,21 +78,33 @@ public class SimonsMorse : MonoBehaviour {
 		{'Z', "--.."}
 	};
 
-	private Dictionary<string, Color32> ColorDict = new Dictionary<string, Color32>() {
-		{"Red",     new Color32(255, 000, 000, 255)},
-		{"Green",   new Color32(000, 255, 000, 255)},
-		{"Blue",    new Color32(000, 000, 255, 255)},
-		{"Cyan",    new Color32(000, 255, 255, 255)},
-		{"Yellow",  new Color32(255, 255, 000, 255)},
-		{"Magenta", new Color32(255, 000, 255, 255)},
-		{"Orange",  new Color32(255, 127, 000, 255)},
-		{"Pink",    new Color32(255, 127, 255, 255)},
-		{"Black",   new Color32(050, 050, 050, 255)},
-		{"White",   new Color32(255, 255, 255, 255)},
-	};
 	private Color32 BaseLogColor = new Color32(51, 28, 8, 255);
+	private Dictionary<string, Color32> ColorDict = new Dictionary<string, Color32>() {
+		{"Red",		 new Color32(255, 000, 000, 255)},
+		{"Green",	 new Color32(000, 255, 000, 255)},
+		{"Blue",		new Color32(000, 000, 255, 255)},
+		{"Cyan",		new Color32(000, 255, 255, 255)},
+		{"Yellow",	new Color32(255, 255, 000, 255)},
+		{"Magenta", new Color32(255, 000, 255, 255)},
+		{"Orange",	new Color32(255, 127, 000, 255)},
+		{"Pink",		new Color32(255, 127, 255, 255)},
+		{"Black",	 new Color32(050, 050, 050, 255)},
+		{"White",	 new Color32(255, 255, 255, 255)},
+	};
+	private Dictionary<string, string> ColorblindDict = new Dictionary<string, string>() {
+		{"Red",		 "R"},
+		{"Green",	 "G"},
+		{"Blue",		"B"},
+		{"Cyan",		"C"},
+		{"Yellow",	"Y"},
+		{"Magenta", "M"},
+		{"Orange",	"O"},
+		{"Pink",		"I"},
+		{"Black",	 "K"},
+		{"White",	 "W"},
+	};
 
-	private Dictionary<int, string> LogPosDict =  new Dictionary<int, string>() {
+	private Dictionary<int, string> LogPosDict =	new Dictionary<int, string>() {
 		{0, "TR"},
 		{1, "MR"},
 		{2, "BR"},
@@ -136,6 +148,13 @@ public class SimonsMorse : MonoBehaviour {
 
 	//mod setup
 	void Awake () { //Avoid doing calculations in here regarding edgework. Just use this for setting up buttons for simplicity.
+		
+		/* [!]
+		ModConfig<SimonsMorseSettings> modConfig = new ModConfig<SimonsMorseSettings>("SimonsMorseSettings");
+		Settings = modConfig.Settings;
+		modConfig.Settings = Settings;
+		*/
+
 		ModuleId = ModuleIdCounter++;
 		GetComponent<KMBombModule>().OnActivate += Activate;
 
@@ -166,8 +185,9 @@ public class SimonsMorse : MonoBehaviour {
 		for(int i = 0; i < 6; i++){
 			LogKMS[i].GetComponent<MeshRenderer>().material.color = BaseLogColor;
 			Lights[i].color = BaseLogColor;
+			ColorblindTxt[i].text = "";
 		}
-
+		
 		CampfireAngle = Bomb.GetSerialNumber()[0];
 		CurrentAngle = Bomb.GetSerialNumber()[1];
 		
@@ -219,16 +239,12 @@ public class SimonsMorse : MonoBehaviour {
 	}
 
 	void FireUp() {
+		if(ModuleSolved || ModState != "READWRITE" || !isFireHeld) return;
 		isFireHeld = false;
-		if(ModuleSolved || ModState != "READWRITE") return;
 
 		Debug.LogFormat("[Simon s'Morse #{0}] Input: ({3}) {1} on log {2}", ModuleId, MorseToChar(InputMorse), LogPosDict[InputLog], InputMorse);
-		if(NextSeat == InputLog && NextAngle == MorseToChar(InputMorse))
-			StageProgress();
-		else
-			Strike();
-		
-
+		if(NextSeat == InputLog && NextAngle == MorseToChar(InputMorse)) StageProgress();
+		else Strike();
 	}
 
 	void Update() {
@@ -261,6 +277,7 @@ public class SimonsMorse : MonoBehaviour {
 		ModuleSolved = true;
 		ModState = "SOLVED";
 
+		Audio.PlaySoundAtTransform("Reset", CampfireKMS.transform);
 		StopTx();
 		StartCampfireRecolour(2);
 		StartCoroutine(UncolorLogs());
@@ -314,12 +331,12 @@ public class SimonsMorse : MonoBehaviour {
 		
 		int k = CurrentSeat;
 		int[][] table = new int[][] {
-			new int[] {k+4, 0,   1,   3,   k,   k+3, 4,   k+5, k,   k+2 }, //TR
-			new int[] {k,   k+1, 0,   k+2, 2,   4,   k+1, k+3, k+5, 1   }, //MR
-			new int[] {k+3, 5,   k+5, 4,   3,   k+4, k,   k+4, 5,   2   }, //BR
-			new int[] {3,   k+2, k+4, 5,   k+4, 0,   k+2, 1,   k+1, 0   }, //BL
-			new int[] {k+1, 2,   3,   1,   4,   2,   k+5, 5,   k+3, 4   }, //ML
-			new int[] {5,   k+5, k+2, k+3, 3,   k+1, 1,   0,   2,   k   }  //TL
+			new int[] {k+4, 0,	 1,	 3,	 k,	 k+3, 4,	 k+5, k,	 k+2 }, //TR
+			new int[] {k,	 k+1, 0,	 k+2, 2,	 4,	 k+1, k+3, k+5, 1	 }, //MR
+			new int[] {k+3, 5,	 k+5, 4,	 3,	 k+4, k,	 k+4, 5,	 2	 }, //BR
+			new int[] {3,	 k+2, k+4, 5,	 k+4, 0,	 k+2, 1,	 k+1, 0	 }, //BL
+			new int[] {k+1, 2,	 3,	 1,	 4,	 2,	 k+5, 5,	 k+3, 4	 }, //ML
+			new int[] {5,	 k+5, k+2, k+3, 3,	 k+1, 1,	 0,	 2,	 k	 }	//TL
 		};
 
 		NextSeat = table[TxLogs[Stage-1]][ColorDict.Keys.ToList().IndexOf(LogColors[TxLogs[Stage-1]])] % 6;
@@ -415,21 +432,23 @@ public class SimonsMorse : MonoBehaviour {
 	
 	IEnumerator ColorLogs() {
 		double t = 0.01f;
+		bool cb = colorblindScript.ColorblindModeActive;
 		yield return new WaitForSeconds(1.5f);
 
 		for(int i = 0; i < 6; i++){
-			
+
 			if(LogColors[i] == "Black"){
 				Lights[i].color = ColorDict["White"];			
 			} else
 				Lights[i].color = ColorDict[LogColors[i]];
 
 			while (t < 0.99f) {
-				LogKMS[i].GetComponent<MeshRenderer>().material.color =  Color32.Lerp(BaseLogColor, ColorDict[LogColors[i]], (float)t); 
+				LogKMS[i].GetComponent<MeshRenderer>().material.color =	Color32.Lerp(BaseLogColor, ColorDict[LogColors[i]], (float)t); 
 				t = Math.Pow(t, 0.76f);
 				yield return new WaitForSeconds(0.03f);
 			}
 
+			if(cb) ColorblindTxt[i].text = ColorblindDict[LogColors[i]];
 			t = 0.01f;
 		}
 
@@ -440,13 +459,15 @@ public class SimonsMorse : MonoBehaviour {
 
 	IEnumerator UncolorLogs() {
 		double t = 0.01f;
+		
 		yield return new WaitForSeconds(1f);
 
 		for(int i = 5; i >= 0; i--){
 			Color32 fro = LogKMS[i].GetComponent<MeshRenderer>().material.color;
+			ColorblindTxt[i].text = "";
 
 			while (t < 0.99f) {
-				LogKMS[i].GetComponent<MeshRenderer>().material.color =  Color32.Lerp(fro, BaseLogColor, (float)t); 
+				LogKMS[i].GetComponent<MeshRenderer>().material.color =	Color32.Lerp(fro, BaseLogColor, (float)t); 
 				t = Math.Pow(t, 0.76f);
 				yield return new WaitForSeconds(0.03f);
 			}
@@ -492,15 +513,19 @@ public class SimonsMorse : MonoBehaviour {
 
 	//sounds
 	void PlayBgNoise() {
+		if(!Settings.PlayAmbience) return;
 		BgNoise = Audio.PlaySoundAtTransformWithRef("Background", CampfireKMS.transform);
 	}
 
 	void StopBgNoise() {
+		if(BgNoise == null) return;
 		BgNoise.StopSound();
 	}
 
+
+	//tp
 	#pragma warning disable 414
-	private readonly string TwitchHelpMessage = @"!{0} <TL/MR/BL> .-. to transmit the morse using the log at that position. !{0} campfire <tap/hold> to interact with the campfire.";
+	private readonly string TwitchHelpMessage = @"!{0} <TL/MR/BL> .-. to transmit the morse using the log at that position. !{0} reset, !{0} submit, !{0} colo(u)rblind/cb.";
 	#pragma warning restore 414
 
 	IEnumerator ProcessTwitchCommand (string Command) {
@@ -508,10 +533,100 @@ public class SimonsMorse : MonoBehaviour {
 		string[] Commands = Command.Split(' ');
 		yield return null;
 
+		if(Regex.IsMatch(Commands[0], @"^[TMB][LR]$")){
+			if(Commands.Length != 2){
+				yield return "sendtochaterror Please provide some morse, expecting 2 arguments.";
+				yield break;
+			}
+			if(!Regex.IsMatch(Commands[1], @"^(\.|-)+$")){
+				yield return "sendtochaterror Invalid morse: " + Commands[1];
+				yield break;
+			}
+			if(ModState != "READ"){
+				yield return "sendtochaterror The module isn't accepting morse at this time.";
+				yield break;
+			}
+
+			StartCoroutine(TwitchInputOnLog(LogPosDict.Where(p => p.Value == Commands[0]).Select(p => p.Key).ToArray()[0], Commands[1]));
+
+		} else if(Commands[0] == "SUBMIT"){
+			if(ModState != "READWRITE"){
+				yield return "sendtochaterror The module cannot be submitted at this time.";
+				yield break;
+			}
+			StartCoroutine(TwitchHoldFire(0.1f));
+
+		} else if(Commands[0] == "RESET"){
+			if(ModState != "READWRITE"){
+				yield return "sendtochaterror The module cannot be reset at this time.";
+				yield break;
+			}
+			StartCoroutine(TwitchHoldFire(2.5f));
+
+		} else if (Regex.IsMatch(Commands[0], @"^C(B|OLO(|U)RBLIND)$")){
+			bool cb = ColorblindTxt[0].text != "";
+			for(int i = 0; i < 6; i++){
+				ColorblindTxt[i].text = cb ? "" : ColorblindDict[LogColors[i]];
+			}
+		
+		} else {
+			yield return "sendtochaterror Invalid command: " + Commands[0];
+			yield break;
+		}
 	}
 
 	IEnumerator TwitchHandleForcedSolve () {
 		yield return null;
+		while(ModState == "WRITE") yield return new WaitForSeconds(0.2f);
+		while(ModState != "READ"){
+			StartCoroutine(TwitchHoldFire(2.5f));
+			yield return new WaitForSeconds(2.6f);
+		}
+
+		while(!ModuleSolved){
+			StartCoroutine(TwitchInputOnLog(NextSeat, MorseDict[NextAngle]));
+			yield return new WaitForSeconds(MorseDict[NextAngle].Length * 0.7f + 1.2f);
+
+			StartCoroutine(TwitchHoldFire(0.2f));
+			yield return new WaitForSeconds(0.3f);
+		}
+
 	}
 
+	IEnumerator TwitchInputOnLog(int log, string morse){
+		yield return null;
+		for(int i = 0; i < morse.Length; i++){
+			InputPress(LogKMS[log]);
+			yield return new WaitForSeconds(morse[i] == '-' ? 0.5f : 0.1f);
+
+			InputRelease(LogKMS[log]);
+			yield return new WaitForSeconds(0.2f);
+		}
+	}
+
+	IEnumerator TwitchHoldFire(float time){
+		yield return null;
+		FireDown();
+		yield return new WaitForSeconds(time);
+		FireUp();
+	}
+
+
+	//mod settings
+	class SimonsMorseSettings {
+		public bool PlayAmbience = true;
+	}
+
+	static Dictionary<string, object>[] TweaksEditorSettings = new Dictionary<string, object>[] {
+		new Dictionary<string, object> {
+			 { "Filename", "SimonsMorse.json" },
+			 { "Name", "SimonsMorse Settings" },
+			 { "Listing", new List<Dictionary<string, object>>{
+					new Dictionary<string, object> {
+						 { "Key", "Play ambience" },
+						 { "Text", "The module will play ambience when it is focused." }
+					}
+			 } }
+		}
+	 };
 }
