@@ -1,8 +1,4 @@
 ﻿/*
-	controller support
-	sounds
-		reset volume down
-		radio sinewave for flash
 	tweak manual
 		prettify table 1
 		morse reading chart
@@ -81,16 +77,16 @@ public class SimonsMorse : MonoBehaviour {
 
 	private Color32 BaseLogColor = new Color32(51, 28, 8, 255);
 	private Dictionary<string, Color32> ColorDict = new Dictionary<string, Color32>() {
-		{"Red",		 new Color32(255, 000, 000, 255)},
-		{"Green",	 new Color32(000, 255, 000, 255)},
+		{"Red",			new Color32(255, 000, 000, 255)},
+		{"Green",		new Color32(000, 255, 000, 255)},
 		{"Blue",		new Color32(000, 000, 255, 255)},
 		{"Cyan",		new Color32(000, 255, 255, 255)},
-		{"Yellow",	new Color32(255, 255, 000, 255)},
-		{"Magenta", new Color32(255, 000, 255, 255)},
-		{"Orange",	new Color32(255, 127, 000, 255)},
+		{"Yellow",		new Color32(255, 255, 000, 255)},
+		{"Magenta", 	new Color32(255, 000, 255, 255)},
+		{"Orange",		new Color32(255, 127, 000, 255)},
 		{"Pink",		new Color32(255, 127, 255, 255)},
-		{"Black",	 new Color32(050, 050, 050, 255)},
-		{"White",	 new Color32(255, 255, 255, 255)},
+		{"Black",		new Color32(050, 050, 050, 255)},
+		{"White",		new Color32(255, 255, 255, 255)},
 	};
 	private Dictionary<string, string> ColorblindDict = new Dictionary<string, string>() {
 		{"Red",		 "R"},
@@ -105,7 +101,7 @@ public class SimonsMorse : MonoBehaviour {
 		{"White",	 "W"},
 	};
 
-	private Dictionary<int, string> LogPosDict =	new Dictionary<int, string>() {
+	private Dictionary<int, string> LogPosDict = new Dictionary<int, string>() {
 		{0, "TR"},
 		{1, "MR"},
 		{2, "BR"},
@@ -145,16 +141,14 @@ public class SimonsMorse : MonoBehaviour {
 	private float FireHeldTimer = 0f;
 
 	private KMAudio.KMAudioRef BgNoise = null;
-
+	private KMAudio.KMAudioRef MorseSound = null;
+	private bool isFocused = false;
 
 	//mod setup
-	void Awake () { //Avoid doing calculations in here regarding edgework. Just use this for setting up buttons for simplicity.
-		
-		/* [!]
+	void Awake () { //Avoid doing calculations in here regarding edgework. Just use this for setting up buttons for simplicity.	
 		ModConfig<SimonsMorseSettings> modConfig = new ModConfig<SimonsMorseSettings>("SimonsMorseSettings");
 		Settings = modConfig.Settings;
 		modConfig.Settings = Settings;
-		*/
 
 		ModuleId = ModuleIdCounter++;
 		GetComponent<KMBombModule>().OnActivate += Activate;
@@ -167,8 +161,8 @@ public class SimonsMorse : MonoBehaviour {
 		CampfireKMS.OnInteract += delegate () { FireDown(); return false; };
 		CampfireKMS.OnInteractEnded += delegate () { FireUp(); };
 
-		SmorseMod.OnFocus += delegate { PlayBgNoise(); };
-		SmorseMod.OnDefocus += delegate { StopBgNoise(); };
+		SmorseMod.OnFocus += delegate { PlayBgNoise(); isFocused = true; };
+		SmorseMod.OnDefocus += delegate { StopBgNoise(); isFocused = false; };
 	}
 
 	void Start () { //Shit that you calculate, usually a majority if not all of the module
@@ -235,13 +229,13 @@ public class SimonsMorse : MonoBehaviour {
 	}
 
 	void FireDown() {
-		if(ModuleSolved || ModState != "READWRITE") return;
+		if(ModuleSolved) return;
 		isFireHeld = true;
 	}
 
 	void FireUp() {
-		if(ModuleSolved || ModState != "READWRITE" || !isFireHeld) return;
 		isFireHeld = false;
+		if(ModuleSolved || ModState != "READWRITE" || FireHeldTimer > 2f) return;
 
 		Debug.LogFormat("[Simon s'Morse #{0}] Input: ({3}) {1} on log {2}", ModuleId, MorseToChar(InputMorse), LogPosDict[InputLog], InputMorse);
 		if(NextSeat == InputLog && NextAngle == MorseToChar(InputMorse)) StageProgress();
@@ -381,11 +375,13 @@ public class SimonsMorse : MonoBehaviour {
 
 		while(true){
 			LightOBJ[log].SetActive(false);
+			if(MorseSound != null) MorseSound.StopSound();
 			yield return new WaitForSeconds(i == currentChar.Length ? 1.0f : 0.15f);
 		
 			i %= currentChar.Length;
 
 			LightOBJ[log].SetActive(true);
+			if(isFocused) MorseSound = Audio.PlaySoundAtTransformWithRef(LogColors[log], CampfireKMS.transform);
 			yield return new WaitForSeconds(currentChar[i++] == '.' ? 0.15f : 0.6f);
 		}
 	}
@@ -398,16 +394,18 @@ public class SimonsMorse : MonoBehaviour {
 		string currTx = MorseDict[TxChars[0]];
 
 		foreach(GameObject logbulb in LightOBJ) logbulb.SetActive(false);
-
 		yield return new WaitForSeconds(0.5f);
 
 		while(true){
 			while(msI < currTx.Length){
 				LightOBJ[currLog].SetActive(true);
-				yield return new WaitForSeconds(currTx[msI++] == '.' ? 0.15f : 0.6f);
+				if(isFocused) MorseSound = Audio.PlaySoundAtTransformWithRef(LogColors[currLog], CampfireKMS.transform);
+				yield return new WaitForSeconds(currTx[msI++] == '.' ? 0.1f : 0.6f);
 
 				LightOBJ[currLog].SetActive(false);
-				yield return new WaitForSeconds(0.15f);
+				if(MorseSound != null) MorseSound.StopSound();
+
+				yield return new WaitForSeconds(0.1f);
 			}
 
 			stageI = (stageI+1) % (Stage);
@@ -415,15 +413,14 @@ public class SimonsMorse : MonoBehaviour {
 			currLog = TxLogs[stageI];
 			currTx = MorseDict[TxChars[stageI]];
 
-			yield return new WaitForSeconds(stageI != 0 ? 0.55f : 1.55f);
+			yield return new WaitForSeconds(stageI != 0 ? 0.50f : 1.50f);
 		}
-		
-		yield return null;
 	}
 
 	void StopTx(){
 		if(TxCoroutine != null) StopCoroutine(TxCoroutine);
 		foreach(GameObject logbulb in LightOBJ) logbulb.SetActive(false);
+		if(MorseSound != null) MorseSound.StopSound();
 	}
 
 	void StartCampfireRecolour(int i) {
@@ -454,7 +451,7 @@ public class SimonsMorse : MonoBehaviour {
 		}
 
 		yield return new WaitForSeconds(0.5f);
-		TxCoroutine = StartCoroutine(TxMorseOnLog(TxLogs[Stage-1], MorseDict[TxChars[Stage-1]]));
+		TxCoroutine = StartCoroutine(TxMorseOnLog());
 		ModState = "READ";
 	}
 
@@ -549,7 +546,7 @@ public class SimonsMorse : MonoBehaviour {
 			}
 
 			StartCoroutine(TwitchInputOnLog(LogPosDict.Where(p => p.Value == Commands[0]).Select(p => p.Key).ToArray()[0], Commands[1]));
-
+			yield break;
 		} else if(Commands[0] == "SUBMIT"){
 			if(ModState != "READWRITE"){
 				yield return "sendtochaterror The module cannot be submitted at this time.";

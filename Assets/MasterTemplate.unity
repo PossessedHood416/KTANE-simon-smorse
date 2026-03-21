@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4465785, g: 0.49641252, b: 0.574817, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -311,7 +311,7 @@ Prefab:
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.size
-      value: 2
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 439642, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
       propertyPath: m_LocalPosition.x
@@ -364,52 +364,52 @@ Prefab:
         type: 2}
       propertyPath: AudioClips.Array.data[2]
       value: 
-      objectReference: {fileID: 8300000, guid: f0eeefdaf1cdbdf4b931fee7fa082204, type: 3}
+      objectReference: {fileID: 8300000, guid: 928994bb3df87f74bbade0e328653a18, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[3]
       value: 
-      objectReference: {fileID: 8300000, guid: 0e3a2636b7d73ee41aa2e9f596792bc5, type: 3}
+      objectReference: {fileID: 8300000, guid: aef07c7e1ddd96a4b94cea7193a998e3, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[4]
       value: 
-      objectReference: {fileID: 8300000, guid: 767a55b43d871ad448ceb37bff99763d, type: 3}
+      objectReference: {fileID: 8300000, guid: e34b129bdd7777b41b9d016f711d83f3, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[5]
       value: 
-      objectReference: {fileID: 8300000, guid: 5aaeb65b70e08b045bc9d5282ee6a2e4, type: 3}
+      objectReference: {fileID: 8300000, guid: 0c21d445c8eac5b40b6f26878b19bfc1, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[6]
       value: 
-      objectReference: {fileID: 8300000, guid: fd91a0c2b2d0f2c479af866bdbabecda, type: 3}
+      objectReference: {fileID: 8300000, guid: 24ddeb1f92c44f44a82f88654497bc1f, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[7]
       value: 
-      objectReference: {fileID: 8300000, guid: 58ed32dcc464d6d4ead55ad189202b71, type: 3}
+      objectReference: {fileID: 8300000, guid: 545a2ee52339c7d4d9711a2c5936ef94, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[8]
       value: 
-      objectReference: {fileID: 8300000, guid: 63f5e772fdbe4da479c7263f0d663acf, type: 3}
+      objectReference: {fileID: 8300000, guid: 6bb7463df8fad664db0917a7b18b7e7f, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[9]
       value: 
-      objectReference: {fileID: 8300000, guid: 258e1ff09fab4e74e9c87e490c563079, type: 3}
+      objectReference: {fileID: 8300000, guid: 53cb17d545acc5344a045bac1179bf2e, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[10]
       value: 
-      objectReference: {fileID: 8300000, guid: 955d02a9463fd904187787abad49fba6, type: 3}
+      objectReference: {fileID: 8300000, guid: 4214eddccfc9b8f4985b2c535af06bdc, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[11]
       value: 
-      objectReference: {fileID: 8300000, guid: 40c8207606c86124bac23cdcbc0188ae, type: 3}
+      objectReference: {fileID: 8300000, guid: de5fbb7ee46dd9c4392190337372b4de, type: 3}
     - target: {fileID: 23250615886371998, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: m_Materials.Array.data[0]
@@ -485,6 +485,11 @@ Prefab:
         type: 2}
       propertyPath: m_Color.rgba
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: StrikeCount
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
