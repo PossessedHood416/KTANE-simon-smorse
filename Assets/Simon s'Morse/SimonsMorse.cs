@@ -1,11 +1,4 @@
-﻿/*
-	tweak manual
-		prettify table 1
-		morse reading chart
-	ask hawker for lfa
-*/
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,7 +138,7 @@ public class SimonsMorse : MonoBehaviour {
 	private bool isFocused = false;
 
 	//mod setup
-	void Awake () { //Avoid doing calculations in here regarding edgework. Just use this for setting up buttons for simplicity.	
+	void Awake () { //Avoid doing calculations in here regarding edgework. Just use this for setting up buttons for simplicity.
 		ModConfig<SimonsMorseSettings> modConfig = new ModConfig<SimonsMorseSettings>("SimonsMorseSettings");
 		Settings = modConfig.Settings;
 		modConfig.Settings = Settings;
@@ -376,13 +369,13 @@ public class SimonsMorse : MonoBehaviour {
 		while(true){
 			LightOBJ[log].SetActive(false);
 			if(MorseSound != null) MorseSound.StopSound();
-			yield return new WaitForSeconds(i == currentChar.Length ? 1.0f : 0.15f);
+			yield return new WaitForSeconds(i == currentChar.Length ? 1.6f : 0.1f);
 		
 			i %= currentChar.Length;
 
 			LightOBJ[log].SetActive(true);
 			if(isFocused) MorseSound = Audio.PlaySoundAtTransformWithRef(LogColors[log], CampfireKMS.transform);
-			yield return new WaitForSeconds(currentChar[i++] == '.' ? 0.15f : 0.6f);
+			yield return new WaitForSeconds(currentChar[i++] == '.' ? 0.1f : 0.6f);
 		}
 	}
 
